@@ -68,6 +68,7 @@ app.include_router(youtube_router)
 app.include_router(editor_router)
 app.include_router(processing_router)
 app.include_router(system_router)
+app.include_router(ai_router)
 
 
 # ---- Web pages ----
