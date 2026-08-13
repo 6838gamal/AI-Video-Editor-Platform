@@ -2,46 +2,430 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ app_name }}{% block title %}{% endblock %}</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    >
+
+    <title>
+        {{ app_name | default('AI Video Editor') }}{% block title %}{% endblock %}
+    </title>
+
+    <meta
+        name="theme-color"
+        content="#111827"
+    >
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
     <link rel="stylesheet" href="/static/css/app.css">
+
     {% block extra_head %}{% endblock %}
 </head>
+
 <body>
-    <header class="topbar">
-        <div class="topbar-inner">
-            <a href="/" class="brand">
-                <span class="brand-icon">🎬</span>
-                <span class="brand-name">{{ app_name }}</span>
-            </a>
-            <nav class="nav">
-                <a href="/" class="nav-link">لوحة التحكم</a>
-                <div id="auth-area" class="auth-area"></div>
+
+<div class="app-layout">
+
+    <!-- Mobile Overlay -->
+    <div
+        class="sidebar-overlay"
+        id="sidebar-overlay"
+        aria-hidden="true"
+    ></div>
+
+
+    <!-- =========================
+         SIDEBAR
+    ========================== -->
+    <aside
+        class="sidebar"
+        id="sidebar"
+        aria-label="القائمة الرئيسية"
+    >
+
+        <div class="sidebar-inner">
+
+            <!-- Brand -->
+            <div class="sidebar-brand">
+
+                <a href="/" class="brand">
+
+                    <span class="brand-icon">
+                        🎬
+                    </span>
+
+                    <span class="brand-text">
+                        <span class="brand-name">
+                            {{ app_name | default('AI Video Editor') }}
+                        </span>
+
+                        <span class="brand-version">
+                            MVP
+                        </span>
+                    </span>
+
+                </a>
+
+                <!-- Mobile close -->
+                <button
+                    type="button"
+                    class="sidebar-close"
+                    id="sidebar-close"
+                    aria-label="إغلاق القائمة"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <!-- Navigation -->
+            <nav class="sidebar-nav">
+
+                <div class="nav-section">
+
+                    <div class="nav-section-title">
+                        الرئيسية
+                    </div>
+
+                    <a
+                        href="/"
+                        class="sidebar-link {% if request.url.path == '/' %}active{% endif %}"
+                    >
+                        <span class="sidebar-link-icon">🏠</span>
+                        <span class="sidebar-link-text">
+                            لوحة التحكم
+                        </span>
+                    </a>
+
+                </div>
+
+
+                <div class="nav-section">
+
+                    <div class="nav-section-title">
+                        الفيديو
+                    </div>
+
+                    <a
+                        href="/videos"
+                        class="sidebar-link {% if request.url.path.startswith('/videos') %}active{% endif %}"
+                    >
+                        <span class="sidebar-link-icon">🎬</span>
+                        <span class="sidebar-link-text">
+                            الفيديوهات
+                        </span>
+                    </a>
+
+                    <a
+                        href="/projects"
+                        class="sidebar-link {% if request.url.path.startswith('/projects') %}active{% endif %}"
+                    >
+                        <span class="sidebar-link-icon">📁</span>
+                        <span class="sidebar-link-text">
+                            المشاريع
+                        </span>
+                    </a>
+
+                    <a
+                        href="/uploads"
+                        class="sidebar-link {% if request.url.path.startswith('/uploads') %}active{% endif %}"
+                    >
+                        <span class="sidebar-link-icon">⬆️</span>
+                        <span class="sidebar-link-text">
+                            رفع الملفات
+                        </span>
+                    </a>
+
+                </div>
+
+
+                <div class="nav-section">
+
+                    <div class="nav-section-title">
+                        الأدوات
+                    </div>
+
+                    <a
+                        href="/editor"
+                        class="sidebar-link {% if request.url.path.startswith('/editor') %}active{% endif %}"
+                    >
+                        <span class="sidebar-link-icon">✂️</span>
+                        <span class="sidebar-link-text">
+                            محرر الفيديو
+                        </span>
+                    </a>
+
+                    <a
+                        href="/settings"
+                        class="sidebar-link {% if request.url.path.startswith('/settings') %}active{% endif %}"
+                    >
+                        <span class="sidebar-link-icon">⚙️</span>
+                        <span class="sidebar-link-text">
+                            الإعدادات
+                        </span>
+                    </a>
+
+                </div>
+
             </nav>
+
+
+            <!-- Sidebar Bottom -->
+            <div class="sidebar-bottom">
+
+                <div
+                    id="auth-area"
+                    class="sidebar-auth-area"
+                >
+                    <!-- app.js -->
+                </div>
+
+            </div>
+
         </div>
-    </header>
 
-    {% if degraded %}
-    <div class="banner banner-warn" id="degraded-banner">
-        ⚠ قاعدة البيانات غير متاحة — يعمل النظام في الوضع المتدني.
+    </aside>
+
+
+    <!-- =========================
+         MAIN AREA
+    ========================== -->
+    <div class="main-area">
+
+
+        <!-- =========================
+             TOPBAR
+        ========================== -->
+        <header class="topbar">
+
+            <div class="topbar-inner">
+
+                <div class="topbar-start">
+
+                    <!-- Mobile menu -->
+                    <button
+                        type="button"
+                        class="menu-toggle"
+                        id="menu-toggle"
+                        aria-label="فتح القائمة"
+                        aria-controls="sidebar"
+                        aria-expanded="false"
+                    >
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+
+
+                    <div class="page-heading">
+
+                        <span class="mobile-brand-icon">
+                            🎬
+                        </span>
+
+                        <span>
+                            {{ app_name | default('AI Video Editor') }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="topbar-actions">
+
+                    {% block topbar_actions %}{% endblock %}
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             DEGRADED MODE
+        ========================== -->
+        {% if degraded | default(false) %}
+
+        <div
+            class="banner banner-warn"
+            id="degraded-banner"
+            role="status"
+            aria-live="polite"
+        >
+            <span class="banner-icon">⚠️</span>
+
+            <span>
+                قاعدة البيانات غير متاحة — يعمل النظام في الوضع المتدني.
+            </span>
+        </div>
+
+        {% endif %}
+
+
+        <!-- =========================
+             CONTENT
+        ========================== -->
+        <main class="main-content">
+
+            <div class="content-container">
+
+                {% block content %}{% endblock %}
+
+            </div>
+
+        </main>
+
+
+        <!-- =========================
+             FOOTER
+        ========================== -->
+        <footer class="footer">
+
+            <span>
+                {{ app_name | default('AI Video Editor') }}
+            </span>
+
+            <span class="footer-separator">
+                ·
+            </span>
+
+            <span>
+                MVP
+            </span>
+
+        </footer>
+
     </div>
-    {% endif %}
 
-    <main class="container">
-        {% block content %}{% endblock %}
-    </main>
+</div>
 
-    <footer class="footer">
-        <span>{{ app_name }} · MVP</span>
-    </footer>
 
-    <script>
-        window.__DEGRADED__ = {{ degraded | tojson }};
-    </script>
-    <script src="/static/js/app.js"></script>
-    {% block extra_scripts %}{% endblock %}
+<script>
+    window.__DEGRADED__ = {{ degraded | default(false) | tojson }};
+</script>
+
+<script src="/static/js/app.js"></script>
+
+
+<script>
+(function () {
+
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebar-overlay");
+    const menuToggle = document.getElementById("menu-toggle");
+    const sidebarClose = document.getElementById("sidebar-close");
+
+    if (!sidebar || !overlay || !menuToggle) {
+        return;
+    }
+
+    function openSidebar() {
+
+        sidebar.classList.add("is-open");
+        overlay.classList.add("is-visible");
+
+        menuToggle.setAttribute("aria-expanded", "true");
+        overlay.setAttribute("aria-hidden", "false");
+
+        document.body.classList.add("sidebar-open");
+    }
+
+
+    function closeSidebar() {
+
+        sidebar.classList.remove("is-open");
+        overlay.classList.remove("is-visible");
+
+        menuToggle.setAttribute("aria-expanded", "false");
+        overlay.setAttribute("aria-hidden", "true");
+
+        document.body.classList.remove("sidebar-open");
+    }
+
+
+    menuToggle.addEventListener("click", function () {
+
+        if (sidebar.classList.contains("is-open")) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+
+    });
+
+
+    if (sidebarClose) {
+
+        sidebarClose.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+    }
+
+
+    overlay.addEventListener(
+        "click",
+        closeSidebar
+    );
+
+
+    document
+        .querySelectorAll(".sidebar-link")
+        .forEach(function (link) {
+
+            link.addEventListener(
+                "click",
+                function () {
+
+                    if (window.innerWidth <= 900) {
+                        closeSidebar();
+                    }
+
+                }
+            );
+
+        });
+
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key === "Escape") {
+                closeSidebar();
+            }
+
+        }
+    );
+
+
+    window.addEventListener(
+        "resize",
+        function () {
+
+            if (window.innerWidth > 900) {
+                closeSidebar();
+            }
+
+        }
+    );
+
+})();
+</script>
+
+
+{% block extra_scripts %}{% endblock %}
+
 </body>
 </html>
