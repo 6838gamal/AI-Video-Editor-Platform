@@ -44,8 +44,8 @@ def _set_session_cookie(
     signed_token: str,
 ) -> None:
     """
-    Store the signed authentication token in a secure
-    HTTP-only session cookie.
+    Store the signed authentication token
+    in the session cookie.
     """
 
     response.set_cookie(
@@ -70,7 +70,7 @@ async def register(
     """
     Register a new user.
 
-    Registration requires the database to be available.
+    Registration requires an available database.
     """
 
     if not is_database_available():
@@ -157,7 +157,8 @@ async def login(
     body: LoginRequest,
 ):
     """
-    Authenticate a user and create a session cookie.
+    Authenticate an existing user and
+    create a session cookie.
     """
 
     if not is_database_available():
@@ -242,7 +243,7 @@ async def login(
 @router.post("/logout")
 async def logout():
     """
-    Clear the current session cookie.
+    Remove the current session cookie.
     """
 
     response = JSONResponse(
@@ -274,19 +275,19 @@ async def me(
 
     Possible states:
 
-    authenticated:
-        A real authenticated database user.
+    1. authenticated
+       Real user authenticated through a session.
 
-    fallback:
-        The configured fallback user.
+    2. fallback
+       The configured fallback/demo user.
 
-    guest:
-        No session and no fallback user.
+    3. guest
+       No valid session and fallback disabled.
     """
 
-    # ---------------------------------------------------------
+    # -----------------------------------------------------
     # Guest
-    # ---------------------------------------------------------
+    # -----------------------------------------------------
 
     if user is None:
 
@@ -298,9 +299,9 @@ async def me(
             "email": None,
         }
 
-    # ---------------------------------------------------------
-    # Authenticated / Fallback
-    # ---------------------------------------------------------
+    # -----------------------------------------------------
+    # Real user / fallback user
+    # -----------------------------------------------------
 
     return {
         "authenticated": not user.is_fallback,
@@ -308,4 +309,4 @@ async def me(
         "guest": False,
         "id": user.id,
         "email": user.email,
-    }
+    }ضضض
