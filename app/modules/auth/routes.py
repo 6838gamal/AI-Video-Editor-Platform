@@ -8,7 +8,10 @@ from pydantic import BaseModel, EmailStr
 
 from app.core.exceptions import VideoEditorError
 from app.database import get_db, is_database_available
-from app.dependencies import AuthDependency, CurrentUser
+from app.dependencies import (
+    CurrentUser,
+    get_optional_current_user,
+)
 from app.modules.auth.services import AuthService
 
 
@@ -19,7 +22,7 @@ router = APIRouter(
 
 
 # =========================================================
-# Schemas
+# Request Schemas
 # =========================================================
 
 class RegisterRequest(BaseModel):
@@ -40,19 +43,18 @@ def _set_session_cookie(
     response: JSONResponse,
     signed_token: str,
 ) -> None:
+    """
+    Store the signed authentication token in a secure
+    HTTP-only session cookie.
+    """
 
     response.set_cookie(
         key="session",
         value=signed_token,
-
         httponly=True,
-
         samesite="lax",
-
         secure=False,
-
         max_age=60 * 60 * 24 * 7,
-
         path="/",
     )
 
@@ -66,9 +68,9 @@ async def register(
     body: RegisterRequest,
 ):
     """
-    إنشاء حساب جديد.
+    Register a new user.
 
-    التسجيل يحتاج قاعدة بيانات.
+    Registration requires the database to be available.
     """
 
     if not is_database_available():
@@ -85,7 +87,6 @@ async def register(
             status_code=503,
         )
 
-
     with get_db() as db:
 
         if db is None:
@@ -97,7 +98,6 @@ async def register(
                 },
                 status_code=503,
             )
-
 
         try:
 
@@ -127,7 +127,6 @@ async def register(
 
             return response
 
-
         except VideoEditorError as exc:
 
             return JSONResponse(
@@ -138,15 +137,12 @@ async def register(
                 status_code=400,
             )
 
-
         except Exception:
 
             return JSONResponse(
                 {
                     "ok": False,
-                    "error": (
-                        "تعذر إنشاء الحساب."
-                    ),
+                    "error": "تعذر إنشاء الحساب.",
                 },
                 status_code=500,
             )
@@ -161,7 +157,7 @@ async def login(
     body: LoginRequest,
 ):
     """
-    تسجيل الدخول وإنشاء session cookie.
+    Authenticate a user and create a session cookie.
     """
 
     if not is_database_available():
@@ -178,7 +174,6 @@ async def login(
             status_code=503,
         )
 
-
     with get_db() as db:
 
         if db is None:
@@ -190,7 +185,6 @@ async def login(
                 },
                 status_code=503,
             )
-
 
         try:
 
@@ -220,7 +214,6 @@ async def login(
 
             return response
 
-
         except VideoEditorError as exc:
 
             return JSONResponse(
@@ -231,15 +224,12 @@ async def login(
                 status_code=401,
             )
 
-
         except Exception:
 
             return JSONResponse(
                 {
                     "ok": False,
-                    "error": (
-                        "تعذر تسجيل الدخول."
-                    ),
+                    "error": "تعذر تسجيل الدخول.",
                 },
                 status_code=500,
             )
@@ -251,6 +241,9 @@ async def login(
 
 @router.post("/logout")
 async def logout():
+    """
+    Clear the current session cookie.
+    """
 
     response = JSONResponse(
         {
@@ -273,31 +266,27 @@ async def logout():
 @router.get("/me")
 async def me(
     user: Optional[CurrentUser] = Depends(
-        AuthDependency(
-            require_auth=False
-        )
+        get_optional_current_user
     ),
 ):
     """
-    معرفة حالة المستخدم الحالي.
+    Return the current authentication state.
 
-    هذا endpoint لا يفشل إذا لم يكن المستخدم مسجلًا.
-
-    الحالات:
+    Possible states:
 
     authenticated:
-        مستخدم حقيقي لديه session.
+        A real authenticated database user.
 
     fallback:
-        النظام يعمل باستخدام fallback user.
+        The configured fallback user.
 
     guest:
-        لا توجد جلسة ولا fallback.
+        No session and no fallback user.
     """
 
-    # -----------------------------------------------------
+    # ---------------------------------------------------------
     # Guest
-    # -----------------------------------------------------
+    # ---------------------------------------------------------
 
     if user is None:
 
@@ -309,10 +298,9 @@ async def me(
             "email": None,
         }
 
-
-    # -----------------------------------------------------
+    # ---------------------------------------------------------
     # Authenticated / Fallback
-    # -----------------------------------------------------
+    # ---------------------------------------------------------
 
     return {
         "authenticated": not user.is_fallback,
