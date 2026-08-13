@@ -1,0 +1,45 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./storage:/app/storage
+    environment:
+      - APP_NAME=Video Editor
+      - DEBUG=true
+      - ENVIRONMENT=development
+      - DATABASE_URL=postgresql+psycopg://postgres:postgres@db:5432/video_editor
+      - SECRET_KEY=dev-secret-key
+      - SESSION_SECRET=dev-session-secret
+      - STORAGE_ROOT=/app/storage
+      - MAX_UPLOAD_SIZE_MB=500
+      - MAX_VIDEO_DURATION_SECONDS=3600
+      - FFMPEG_PATH=ffmpeg
+      - FFPROBE_PATH=ffprobe
+      - YT_DLP_PATH=yt-dlp
+      - AI_PROVIDER=
+      - AI_API_KEY=
+      - AI_MODEL=
+      - ALLOW_FALLBACK_USER=true
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=video_editor
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d video_editor"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  pgdata:

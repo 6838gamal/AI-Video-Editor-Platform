@@ -1,0 +1,167 @@
+/* Editor-specific styles */
+.editor-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.back-link {
+    color: var(--text-muted);
+    font-size: .9rem;
+    transition: color .2s;
+}
+.back-link:hover { color: var(--text); }
+
+.editor-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 0.8fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.editor-preview video,
+.result-grid video {
+    width: 100%;
+    max-height: 420px;
+    background: #000;
+    border-radius: var(--radius-sm);
+    display: block;
+}
+.preview-body { display: flex; flex-direction: column; gap: 14px; }
+
+.video-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.info-chip {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: .78rem;
+    color: var(--text-muted);
+}
+.info-chip strong { color: var(--text); font-weight: 600; }
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+.tab {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 10px 16px;
+    font-family: inherit;
+    font-size: .9rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all .2s;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Operation buttons */
+.ops-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.op-btn {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: .85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .2s;
+}
+.op-btn:hover { border-color: var(--primary); background: var(--primary-soft); }
+
+/* Operation form */
+.op-form {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-bottom: 12px;
+}
+.op-form-title { font-weight: 600; margin-bottom: 10px; font-size: .92rem; }
+.op-form .field span { font-size: .8rem; }
+
+/* Plan preview */
+.plan-preview {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    font-size: .82rem;
+    color: var(--text-muted);
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+    font-family: "Cairo", monospace;
+}
+.plan-op {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+    font-size: .82rem;
+}
+.plan-op-type { font-weight: 600; color: var(--primary); }
+.plan-op-params { color: var(--text-muted); font-size: .78rem; }
+.plan-op-remove {
+    background: transparent;
+    border: none;
+    color: var(--error);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 4px;
+}
+
+/* Result page */
+.result-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+.result-status { padding: 12px; text-align: center; }
+.status-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: .85rem;
+    font-weight: 600;
+}
+.status-queued { background: rgba(100,116,139,0.15); color: var(--secondary); }
+.status-processing { background: rgba(59,130,246,0.15); color: var(--primary); }
+.status-completed { background: rgba(34,197,94,0.15); color: var(--success); }
+.status-failed { background: rgba(239,68,68,0.15); color: var(--error); }
+
+@media (max-width: 900px) {
+    .editor-grid { grid-template-columns: 1fr; }
+    .result-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+    .ops-grid { grid-template-columns: 1fr 1fr; }
+}

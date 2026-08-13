@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %} · النتيجة{% endblock %}
+{% block content %}
+<div class="editor-head">
+    <a href="/" class="back-link">← رجوع</a>
+    <h1 class="page-title">النتيجة</h1>
+</div>
+
+<div class="result-grid">
+    <div class="card">
+        <div class="card-body preview-body">
+            <video id="result-player" controls preload="metadata" playsinline></video>
+            <div id="result-status" class="result-status">
+                <span class="muted">جارٍ التحقق من حالة المعالجة…</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-head"><h2>إجراءات</h2></div>
+        <div class="card-body">
+            <a class="btn btn-primary btn-block" id="download-btn" href="#">تنزيل النتيجة</a>
+            <a class="btn btn-secondary btn-block" id="edit-again-btn" href="#">تحرير مرة أخرى</a>
+            <a class="btn btn-ghost btn-block" href="/">فيديو جديد</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>window.__JOB_ID__ = "{{ job_id }}";</script>
+<script src="/static/js/processing.js"></script>
+{% endblock %}

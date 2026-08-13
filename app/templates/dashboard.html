@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %} · لوحة التحكم{% endblock %}
+{% block content %}
+<section class="dash-hero">
+    <h1 class="page-title">مرحباً بك في {{ app_name }}</h1>
+    <p class="page-sub">ارفع فيديو أو الصق رابط يوتيوب، ثم ابدأ التحرير.</p>
+    <div id="system-indicator" class="sys-indicator">جارٍ فحص النظام…</div>
+</section>
+
+<div class="dash-grid">
+    <div class="card">
+        <div class="card-head">
+            <h2>رفع فيديو</h2>
+            <span class="card-tag">MP4 · MOV · MKV · WEBM</span>
+        </div>
+        <div class="card-body">
+            <div id="dropzone" class="dropzone">
+                <div class="dz-inner">
+                    <div class="dz-icon">⬆</div>
+                    <p class="dz-text">اسحب الفيديو هنا أو اضغط للاختيار</p>
+                    <input type="file" id="file-input" accept="video/*" hidden>
+                </div>
+            </div>
+            <div id="upload-progress" class="upload-progress hidden">
+                <div class="bar-track"><div class="bar-fill" id="bar-fill"></div></div>
+                <span id="upload-status">جارٍ الرفع…</span>
+            </div>
+            <p class="form-error" id="upload-error"></p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-head">
+            <h2>تحميل من يوتيوب</h2>
+            <span class="card-tag">YouTube</span>
+        </div>
+        <div class="card-body">
+            <label class="field">
+                <span>رابط الفيديو</span>
+                <input type="url" id="yt-url" placeholder="https://www.youtube.com/watch?v=...">
+            </label>
+            <button class="btn btn-primary btn-block" id="yt-download-btn">تحميل</button>
+            <p class="form-error" id="yt-error"></p>
+            <p class="form-info" id="yt-info"></p>
+        </div>
+    </div>
+</div>
+
+<section class="card">
+    <div class="card-head">
+        <h2>الفيديوهات الأخيرة</h2>
+        <button class="btn btn-ghost btn-sm" id="refresh-videos">تحديث</button>
+    </div>
+    <div class="card-body">
+        <div id="videos-list" class="videos-list">
+            <p class="muted">لا توجد فيديوهات بعد.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/upload.js"></script>
+{% endblock %}

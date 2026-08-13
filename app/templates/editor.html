@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %} · المحرر{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="/static/css/editor.css">
+{% endblock %}
+{% block content %}
+<div class="editor-head">
+    <a href="/" class="back-link">← رجوع</a>
+    <h1 class="page-title">محرر الفيديو</h1>
+</div>
+
+<div class="editor-grid">
+    <div class="editor-preview card">
+        <div class="card-body preview-body">
+            <video id="player" controls preload="metadata" playsinline></video>
+            <div id="video-info" class="video-info">
+                <span class="muted">جارٍ تحميل المعلومات…</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="editor-tools card">
+        <div class="card-head"><h2>أدوات التحرير</h2></div>
+        <div class="card-body">
+            <div class="tabs">
+                <button class="tab active" data-tab="manual">يدوي</button>
+                <button class="tab" data-tab="ai">تعليمات نصية</button>
+            </div>
+
+            <div id="tab-manual" class="tab-panel active">
+                <div class="ops-grid">
+                    <button class="op-btn" data-op="trim">قص (Trim)</button>
+                    <button class="op-btn" data-op="cut">قطع (Cut)</button>
+                    <button class="op-btn" data-op="remove_segment">حذف مقطع</button>
+                    <button class="op-btn" data-op="volume">مستوى الصوت</button>
+                    <button class="op-btn" data-op="speed">السرعة</button>
+                    <button class="op-btn" data-op="resize">تغيير الحجم</button>
+                    <button class="op-btn" data-op="crop">اقتصاص</button>
+                    <button class="op-btn" data-op="rotate">تدوير</button>
+                    <button class="op-btn" data-op="text_overlay">نص</button>
+                    <button class="op-btn" data-op="fade">تلاشي</button>
+                    <button class="op-btn" data-op="compress">ضغط</button>
+                </div>
+                <div id="op-form" class="op-form"></div>
+                <button class="btn btn-secondary btn-block" id="add-op-btn">إضافة العملية</button>
+            </div>
+
+            <div id="tab-ai" class="tab-panel">
+                <label class="field">
+                    <span>اكتب تعليماتك بالعربية أو الإنجليزية</span>
+                    <textarea id="ai-instruction" rows="4" placeholder="مثال: احذف أول 5 ثواني وأضف موسيقى هادئة"></textarea>
+                </label>
+                <button class="btn btn-primary btn-block" id="ai-parse-btn">تحويل إلى خطة</button>
+                <p id="ai-msg" class="form-info"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="editor-plan card">
+        <div class="card-head">
+            <h2>خطة التحرير</h2>
+            <button class="btn btn-ghost btn-sm" id="clear-plan">مسح</button>
+        </div>
+        <div class="card-body">
+            <pre id="plan-preview" class="plan-preview">لا توجد عمليات بعد.</pre>
+            <button class="btn btn-primary btn-block" id="process-btn">معالجة الفيديو</button>
+            <p id="process-msg" class="form-info"></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>window.__VIDEO_ID__ = "{{ video_id }}";</script>
+<script src="/static/js/editor.js"></script>
+<script src="/static/js/processing.js"></script>
+{% endblock %}

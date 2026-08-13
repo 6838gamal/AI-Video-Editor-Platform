@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %} · تسجيل الدخول{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+    <div class="auth-card">
+        <h1 class="auth-title">تسجيل الدخول</h1>
+        <p class="auth-sub">سجّل الدخول لإدارة فيديوهاتك.</p>
+        <form id="login-form" class="auth-form">
+            <label class="field">
+                <span>البريد الإلكتروني</span>
+                <input type="email" name="email" required placeholder="you@example.com" autocomplete="email">
+            </label>
+            <label class="field">
+                <span>كلمة المرور</span>
+                <input type="password" name="password" required placeholder="••••••••" autocomplete="current-password">
+            </label>
+            <button type="submit" class="btn btn-primary btn-block">دخول</button>
+            <p class="auth-error" id="auth-error"></p>
+        </form>
+        <p class="auth-switch">ليس لديك حساب؟ <a href="/register">أنشئ حساباً</a></p>
+        <p class="auth-note">في الوضع المتدني يمكنك استخدام النظام بدون تسجيل دخول.</p>
+    </div>
+</div>
+{% endblock %}

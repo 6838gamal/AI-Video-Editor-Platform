@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }}{% block title %}{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/app.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a href="/" class="brand">
+                <span class="brand-icon">🎬</span>
+                <span class="brand-name">{{ app_name }}</span>
+            </a>
+            <nav class="nav">
+                <a href="/" class="nav-link">لوحة التحكم</a>
+                <div id="auth-area" class="auth-area"></div>
+            </nav>
+        </div>
+    </header>
+
+    {% if degraded %}
+    <div class="banner banner-warn" id="degraded-banner">
+        ⚠ قاعدة البيانات غير متاحة — يعمل النظام في الوضع المتدني.
+    </div>
+    {% endif %}
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <span>{{ app_name }} · MVP</span>
+    </footer>
+
+    <script>
+        window.__DEGRADED__ = {{ degraded | tojson }};
+    </script>
+    <script src="/static/js/app.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
