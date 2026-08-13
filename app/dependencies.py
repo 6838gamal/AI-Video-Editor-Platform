@@ -12,56 +12,130 @@ from app.database import get_db, is_database_available
 
 @dataclass
 class CurrentUser:
+    """
+    Represents the currently authenticated user.
+
+    is_fallback:
+        True when the application is running with the configured
+        fallback/demo user instead of a real database user.
+    """
+
     id: str
     email: str
     is_fallback: bool
 
 
-class AuthDependency:
-    """Resolves the current user from a signed session cookie.
+def resolve_current_user(
+    request: Request,
+) -> Optional[CurrentUser]:
+    """
+    Resolve the current user from the signed session cookie.
 
-    Falls back to the demo user when the database is unavailable or no
-    session is present and ALLOW_FALLBACK_USER is true.
+    Resolution order:
+
+    1. Read the "session" cookie.
+    2. Verify the signed token.
+    3. If the database is available, resolve the real user.
+    4. If no real user can be resolved and fallback is enabled,
+       return the configured fallback user.
+    5. Otherwise return None.
     """
 
-    def __init__(self, require_auth: bool = True) -> None:
-        self.require_auth = require_auth
+    from app.core.security import verify_token
 
-    async def __call__(self, request: Request) -> CurrentUser:
-        user = self._resolve(request)
-        if user is None and self.require_auth:
-            from app.core.exceptions import NotAuthenticatedError
+    # ---------------------------------------------------------
+    # Read session cookie
+    # ---------------------------------------------------------
 
-            raise NotAuthenticatedError()
-        return user
+    signed = request.cookies.get("session")
 
-    def _resolve(self, request: Request) -> Optional[CurrentUser]:
-        from app.core.security import verify_token
+    token = (
+        verify_token(signed)
+        if signed
+        else None
+    )
 
-        signed = request.cookies.get("session")
-        token = verify_token(signed) if signed else None
-        if token and is_database_available():
-            with get_db() as db:
-                if db is not None:
-                    from app.modules.auth.services import AuthService
+    # ---------------------------------------------------------
+    # Resolve real authenticated user
+    # ---------------------------------------------------------
 
-                    user = AuthService(db).user_from_token(token)
-                    if user is not None:
-                        return CurrentUser(id=str(user.id), email=user.email, is_fallback=False)
+    if token and is_database_available():
 
-        if settings.allow_fallback_user:
-            return CurrentUser(
-                id=settings.fallback_user_id,
-                email=settings.fallback_user_email,
-                is_fallback=True,
-            )
-        return None
+        with get_db() as db:
+
+            if db is not None:
+
+                from app.modules.auth.services import AuthService
+
+                user = AuthService(db).user_from_token(
+                    token
+                )
+
+                if user is not None:
+
+                    return CurrentUser(
+                        id=str(user.id),
+                        email=user.email,
+                        is_fallback=False,
+                    )
+
+    # ---------------------------------------------------------
+    # Fallback user
+    # ---------------------------------------------------------
+
+    if settings.allow_fallback_user:
+
+        return CurrentUser(
+            id=settings.fallback_user_id,
+            email=settings.fallback_user_email,
+            is_fallback=True,
+        )
+
+    # ---------------------------------------------------------
+    # No authenticated user
+    # ---------------------------------------------------------
+
+    return None
 
 
-def get_current_user(request: Request) -> CurrentUser:
-    return AuthDependency(require_auth=False)(request)  # type: ignore[arg-type]
+async def get_current_user(
+    request: Request,
+) -> CurrentUser:
+    """
+    Required authentication dependency.
+
+    Raises NotAuthenticatedError when there is no
+    authenticated or fallback user.
+    """
+
+    user = resolve_current_user(request)
+
+    if user is None:
+
+        from app.core.exceptions import NotAuthenticatedError
+
+        raise NotAuthenticatedError()
+
+    return user
+
+
+async def get_optional_current_user(
+    request: Request,
+) -> Optional[CurrentUser]:
+    """
+    Optional authentication dependency.
+
+    Used by endpoints such as /api/auth/me where a guest
+    is a valid state and should not produce an authentication error.
+    """
+
+    return resolve_current_user(request)
 
 
 def get_db_session() -> Session | None:
+    """
+    Return the current database session when available.
+    """
+
     with get_db() as db:
         return db
