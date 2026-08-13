@@ -309,4 +309,4 @@ async def me(
         "guest": False,
         "id": user.id,
         "email": user.email,
-    }ضضض
+    }
