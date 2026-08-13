@@ -1,64 +1,331 @@
 {% extends "base.html" %}
+
 {% block title %} · لوحة التحكم{% endblock %}
+
+
 {% block content %}
+
+<!-- =========================================
+     DASHBOARD HERO
+========================================= -->
 <section class="dash-hero">
-    <h1 class="page-title">مرحباً بك في {{ app_name }}</h1>
-    <p class="page-sub">ارفع فيديو أو الصق رابط يوتيوب، ثم ابدأ التحرير.</p>
-    <div id="system-indicator" class="sys-indicator">جارٍ فحص النظام…</div>
+
+    <div class="dash-hero-content">
+
+        <div class="dash-hero-text">
+
+            <span class="dash-eyebrow">
+                🎬 منصة تحرير الفيديو
+            </span>
+
+            <h1 class="page-title">
+                مرحباً بك في {{ app_name }}
+            </h1>
+
+            <p class="page-sub">
+                ارفع فيديو أو الصق رابط يوتيوب، ثم ابدأ التحرير بسهولة.
+            </p>
+
+        </div>
+
+
+        <div
+            id="system-indicator"
+            class="sys-indicator"
+            role="status"
+            aria-live="polite"
+        >
+            <span class="sys-dot"></span>
+            <span>جارٍ فحص النظام…</span>
+        </div>
+
+    </div>
+
 </section>
 
-<div class="dash-grid">
-    <div class="card">
+
+<!-- =========================================
+     IMPORT OPTIONS
+========================================= -->
+<section class="dash-grid">
+
+
+    <!-- =========================
+         UPLOAD VIDEO
+    ========================== -->
+    <div class="card upload-card">
+
         <div class="card-head">
-            <h2>رفع فيديو</h2>
-            <span class="card-tag">MP4 · MOV · MKV · WEBM</span>
-        </div>
-        <div class="card-body">
-            <div id="dropzone" class="dropzone">
-                <div class="dz-inner">
-                    <div class="dz-icon">⬆</div>
-                    <p class="dz-text">اسحب الفيديو هنا أو اضغط للاختيار</p>
-                    <input type="file" id="file-input" accept="video/*" hidden>
+
+            <div class="card-title-group">
+
+                <div class="card-icon card-icon-upload">
+                    ⬆
                 </div>
-            </div>
-            <div id="upload-progress" class="upload-progress hidden">
-                <div class="bar-track"><div class="bar-fill" id="bar-fill"></div></div>
-                <span id="upload-status">جارٍ الرفع…</span>
-            </div>
-            <p class="form-error" id="upload-error"></p>
-        </div>
-    </div>
 
-    <div class="card">
-        <div class="card-head">
-            <h2>تحميل من يوتيوب</h2>
-            <span class="card-tag">YouTube</span>
+                <div>
+                    <h2>رفع فيديو</h2>
+
+                    <p class="card-description">
+                        ارفع فيديو من جهازك
+                    </p>
+                </div>
+
+            </div>
+
+            <span class="card-tag">
+                MP4 · MOV · MKV · WEBM
+            </span>
+
         </div>
+
+
         <div class="card-body">
-            <label class="field">
-                <span>رابط الفيديو</span>
-                <input type="url" id="yt-url" placeholder="https://www.youtube.com/watch?v=...">
-            </label>
-            <button class="btn btn-primary btn-block" id="yt-download-btn">تحميل</button>
-            <p class="form-error" id="yt-error"></p>
-            <p class="form-info" id="yt-info"></p>
-        </div>
-    </div>
-</div>
 
-<section class="card">
-    <div class="card-head">
-        <h2>الفيديوهات الأخيرة</h2>
-        <button class="btn btn-ghost btn-sm" id="refresh-videos">تحديث</button>
-    </div>
-    <div class="card-body">
-        <div id="videos-list" class="videos-list">
-            <p class="muted">لا توجد فيديوهات بعد.</p>
+            <div
+                id="dropzone"
+                class="dropzone"
+                role="button"
+                tabindex="0"
+                aria-label="رفع فيديو"
+            >
+
+                <div class="dz-inner">
+
+                    <div class="dz-icon">
+                        ⬆
+                    </div>
+
+                    <p class="dz-text">
+                        اسحب الفيديو هنا
+                    </p>
+
+                    <span class="dz-or">
+                        أو
+                    </span>
+
+                    <span class="dz-button">
+                        اختر ملفاً من جهازك
+                    </span>
+
+                    <p class="dz-hint">
+                        يدعم ملفات الفيديو الشائعة
+                    </p>
+
+                    <input
+                        type="file"
+                        id="file-input"
+                        accept="video/*"
+                        hidden
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- Upload progress -->
+            <div
+                id="upload-progress"
+                class="upload-progress hidden"
+                aria-live="polite"
+            >
+
+                <div class="upload-progress-head">
+
+                    <span id="upload-status">
+                        جارٍ الرفع…
+                    </span>
+
+                    <span
+                        id="upload-percent"
+                        class="upload-percent"
+                    >
+                        0%
+                    </span>
+
+                </div>
+
+                <div class="bar-track">
+                    <div
+                        class="bar-fill"
+                        id="bar-fill"
+                        style="width: 0%"
+                    ></div>
+                </div>
+
+            </div>
+
+
+            <p
+                class="form-error"
+                id="upload-error"
+                role="alert"
+            ></p>
+
         </div>
+
     </div>
+
+
+    <!-- =========================
+         YOUTUBE
+    ========================== -->
+    <div class="card youtube-card">
+
+        <div class="card-head">
+
+            <div class="card-title-group">
+
+                <div class="card-icon card-icon-youtube">
+                    ▶
+                </div>
+
+                <div>
+                    <h2>تحميل من يوتيوب</h2>
+
+                    <p class="card-description">
+                        استورد الفيديو باستخدام الرابط
+                    </p>
+                </div>
+
+            </div>
+
+            <span class="card-tag">
+                YouTube
+            </span>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <label
+                class="field"
+                for="yt-url"
+            >
+
+                <span>
+                    رابط الفيديو
+                </span>
+
+                <input
+                    type="url"
+                    id="yt-url"
+                    inputmode="url"
+                    autocomplete="url"
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    dir="ltr"
+                >
+
+            </label>
+
+
+            <button
+                type="button"
+                class="btn btn-primary btn-block"
+                id="yt-download-btn"
+            >
+                <span class="btn-icon">⬇</span>
+                <span>تحميل الفيديو</span>
+            </button>
+
+
+            <p
+                class="form-error"
+                id="yt-error"
+                role="alert"
+            ></p>
+
+
+            <p
+                class="form-info"
+                id="yt-info"
+                role="status"
+            ></p>
+
+        </div>
+
+    </div>
+
 </section>
+
+
+<!-- =========================================
+     RECENT VIDEOS
+========================================= -->
+<section class="card recent-videos-card">
+
+    <div class="card-head">
+
+        <div class="card-title-group">
+
+            <div class="card-icon card-icon-video">
+                🎬
+            </div>
+
+            <div>
+
+                <h2>
+                    الفيديوهات الأخيرة
+                </h2>
+
+                <p class="card-description">
+                    آخر الفيديوهات التي أضفتها إلى المنصة
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="btn btn-ghost btn-sm"
+            id="refresh-videos"
+        >
+            <span class="refresh-icon">↻</span>
+            <span>تحديث</span>
+        </button>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <div
+            id="videos-list"
+            class="videos-list"
+        >
+
+            <div class="empty-state">
+
+                <div class="empty-state-icon">
+                    🎞️
+                </div>
+
+                <p class="empty-state-title">
+                    لا توجد فيديوهات بعد
+                </p>
+
+                <p class="empty-state-text">
+                    ارفع فيديو أو أضف رابط يوتيوب للبدء.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
 {% endblock %}
 
+
 {% block extra_scripts %}
+
 <script src="/static/js/upload.js"></script>
+
 {% endblock %}
