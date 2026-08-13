@@ -14,10 +14,6 @@ from app.database import get_db, is_database_available
 class CurrentUser:
     """
     Represents the currently authenticated user.
-
-    is_fallback:
-        True when the application is running with the configured
-        fallback/demo user instead of a real database user.
     """
 
     id: str
@@ -33,19 +29,12 @@ def resolve_current_user(
 
     Resolution order:
 
-    1. Read the "session" cookie.
-    2. Verify the signed token.
-    3. If the database is available, resolve the real user.
-    4. If no real user can be resolved and fallback is enabled,
-       return the configured fallback user.
-    5. Otherwise return None.
+    1. Valid session cookie + database user.
+    2. Fallback user when enabled.
+    3. None.
     """
 
     from app.core.security import verify_token
-
-    # ---------------------------------------------------------
-    # Read session cookie
-    # ---------------------------------------------------------
 
     signed = request.cookies.get("session")
 
@@ -56,7 +45,7 @@ def resolve_current_user(
     )
 
     # ---------------------------------------------------------
-    # Resolve real authenticated user
+    # Real authenticated user
     # ---------------------------------------------------------
 
     if token and is_database_available():
@@ -92,10 +81,45 @@ def resolve_current_user(
         )
 
     # ---------------------------------------------------------
-    # No authenticated user
+    # Guest
     # ---------------------------------------------------------
 
     return None
+
+
+class AuthDependency:
+    """
+    FastAPI authentication dependency.
+
+    This class is intentionally kept for backward compatibility
+    with existing modules such as editor, processing, youtube, etc.
+
+    IMPORTANT:
+    The Request object is explicitly stored in the __call__
+    method so FastAPI recognizes it as a Request dependency.
+    """
+
+    def __init__(
+        self,
+        require_auth: bool = True,
+    ) -> None:
+
+        self.require_auth = require_auth
+
+    async def __call__(
+        self,
+        request: Request,
+    ) -> Optional[CurrentUser]:
+
+        user = resolve_current_user(request)
+
+        if user is None and self.require_auth:
+
+            from app.core.exceptions import NotAuthenticatedError
+
+            raise NotAuthenticatedError()
+
+        return user
 
 
 async def get_current_user(
@@ -104,8 +128,7 @@ async def get_current_user(
     """
     Required authentication dependency.
 
-    Raises NotAuthenticatedError when there is no
-    authenticated or fallback user.
+    Use this in new routes.
     """
 
     user = resolve_current_user(request)
@@ -125,8 +148,7 @@ async def get_optional_current_user(
     """
     Optional authentication dependency.
 
-    Used by endpoints such as /api/auth/me where a guest
-    is a valid state and should not produce an authentication error.
+    A guest is allowed.
     """
 
     return resolve_current_user(request)
